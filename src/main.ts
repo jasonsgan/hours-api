@@ -1,10 +1,20 @@
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
-import { AppModule } from './app.module';
+import { Logger } from 'nestjs-pino';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-  
+import { AppModule } from './app.module';
+
 async function bootstrap() {
-  const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter());
+  const app = await NestFactory.create<NestFastifyApplication>(
+    AppModule,
+    new FastifyAdapter(),
+    {
+      bufferLogs: true,
+      logger: false
+    }
+  );
+
+  app.useLogger(app.get(Logger));
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('API')
@@ -12,7 +22,7 @@ async function bootstrap() {
     .setVersion('1.0')
     .build();
   const swaggerDoc = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('api-docs', app, swaggerDoc);
+  SwaggerModule.setup('swagger', app, swaggerDoc);
 
   await app.listen(process.env.PORT ?? 8000);
 }
