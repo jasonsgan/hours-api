@@ -7,9 +7,13 @@ export class AppService {
   
   getHello(name: string): string {
     this.logger.log('getHello called');
+    if (name === 'dumbledore') {
+      throw new Error('He disappeared');
+    }
     if (name === 'voldemort') {
       throw new BadRequestException('He must not be named');
-    } else if (name) {
+    }
+    if (name) {
       return `Hello ${name}!`;
     }
     return 'Hello World!';
