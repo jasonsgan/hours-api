@@ -4,8 +4,8 @@ import { pino } from 'pino';
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { uuidv7 } from 'uuidv7';
 import { AppController } from './app.controller';
-import { HealthController } from './health/health.controller';
 import { AppService } from './app.service';
+import { TimesheetModule } from '../timesheet/timesheet.module';
 
 const PinoLoggerModule = LoggerModule.forRoot({
   pinoHttp: {
@@ -65,8 +65,8 @@ const PinoLoggerModule = LoggerModule.forRoot({
 });
 
 @Module({
-  imports: [PinoLoggerModule],
-  controllers: [AppController, HealthController],
+  imports: [PinoLoggerModule, TimesheetModule],
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
