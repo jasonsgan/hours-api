@@ -1,4 +1,4 @@
-import { HttpException, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 
 @Injectable()
 export class AppService {
@@ -8,7 +8,7 @@ export class AppService {
   getHello(name: string): string {
     this.logger.log('getHello called');
     if (name === 'voldemort') {
-      throw new HttpException('He must not be named', 400);
+      throw new BadRequestException('He must not be named');
     } else if (name) {
       return `Hello ${name}!`;
     }
