@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import {
   TimeEntriesDto
-} from './dto';
+} from './timesheet.dto';
 
 @Injectable()
 export class TimesheetService {

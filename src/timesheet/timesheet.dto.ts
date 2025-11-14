@@ -1,7 +1,7 @@
 import { IsInt, Min, Max, IsString, IsNotEmpty } from 'class-validator';
 import { Type } from 'class-transformer';
 
-export class TimeEntriesParamsDto {
+export class TimesheetParamsDto {
   @IsString()
   @IsNotEmpty({message: 'Username must be a non-empty string'})
   username: string;

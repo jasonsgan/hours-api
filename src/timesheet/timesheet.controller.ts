@@ -7,7 +7,7 @@ import {
   ValidationPipe 
 } from '@nestjs/common';
 import { TimesheetService } from './timesheet.service';
-import { TimeEntriesDto, TimeEntriesParamsDto} from './dto';
+import { TimeEntriesDto, TimesheetParamsDto} from './timesheet.dto';
 
 @Controller('timesheet')
 export class TimesheetController {
@@ -15,9 +15,9 @@ export class TimesheetController {
 
   constructor(private readonly timesheetService: TimesheetService) {}
 
-  @Get('entries/:username/:year/:month')
+  @Get(':username/:year/:month')
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  async getTimeEntries(@Param() params: TimeEntriesParamsDto): Promise<TimeEntriesDto> {
+  async getTimeEntries(@Param() params: TimesheetParamsDto): Promise<TimeEntriesDto> {
     return this.timesheetService.getTimeEntries(params.username, params.year, params.month);
   }
 
