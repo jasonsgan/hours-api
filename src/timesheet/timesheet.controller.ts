@@ -6,8 +6,9 @@ import {
   UsePipes, 
   ValidationPipe 
 } from '@nestjs/common';
+import { ApiOkResponse } from '@nestjs/swagger';
 import { TimesheetService } from './timesheet.service';
-import { TimeEntriesDto, TimesheetParamsDto} from './timesheet.dto';
+import { TimesheetDto, MonthParamsDto} from './dto/timesheet.dto';
 
 @Controller('timesheet')
 export class TimesheetController {
@@ -15,10 +16,11 @@ export class TimesheetController {
 
   constructor(private readonly timesheetService: TimesheetService) {}
 
+  @ApiOkResponse({ type: TimesheetDto, description: 'Timesheet data for the specified month' })
   @Get(':username/:year/:month')
   @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
-  async getTimeEntries(@Param() params: TimesheetParamsDto): Promise<TimeEntriesDto> {
-    return this.timesheetService.getTimeEntries(params.username, params.year, params.month);
+  async getTimesheetByMonth(@Param() params: MonthParamsDto): Promise<TimesheetDto> {
+    return this.timesheetService.getTimesheetByMonth(params.username, params.year, params.month);
   }
 
 }
