@@ -21,7 +21,7 @@ export class TimesheetService {
     while (currentDate < toDate) {
       const isoDate = currentDate.toISOString().split('T')[0];
 
-      const timeLog = new TimeLogDto(isoDate, '09:00', '18:00');
+      const timeLog = new TimeLogDto(isoDate, '09:00', '18:30');
       timeLog.tasks.push(new TaskDto('Benoite', 'Corporate Event', 3, 'Lunch at Rals'));
       timeLog.tasks.push(new TaskDto('MC4 BD', 'Proposal Preparation', 5));
       

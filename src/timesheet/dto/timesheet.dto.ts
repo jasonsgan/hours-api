@@ -1,5 +1,5 @@
 import { IsInt, Min, Max, IsString, IsNotEmpty } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Type, Expose } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class MonthParamsDto {
@@ -92,12 +92,30 @@ export class TimeLogDto {
   timeOut: string;
 
   @ApiProperty({
-    type: [TaskDto],
-    description: 'Array of tasks worked on that day'
+    description: 'Elapsed time between time-in and time-out',
+    example: '9:19',
+    type: String
   })
-  tasks: TaskDto[] = [];
+  @Expose()
+  elapsedTime(): string {
+    const inDate = new Date(`1970-01-01T${this.timeIn}:00Z`);
+    const outDate = new Date(`1970-01-01T${this.timeOut}:00Z`);
+    if (outDate < inDate) {
+      outDate.setUTCDate(outDate.getUTCDate() + 1);
+    }
+    const elapsedMs = outDate.getTime() - inDate.getTime();
+    const elapsedHours = Math.floor(elapsedMs / (1000 * 60 * 60));
+    const elapsedMinutes = Math.floor((elapsedMs % (1000 * 60 * 60)) / (1000 * 60));
+    return `${elapsedHours}:${elapsedMinutes.toString().padStart(2, '0')}`;
+  }
 
-  getHoursWorked(): number {
+  @ApiProperty({
+    description: 'Total hours from all tasks worked on that day',
+    example: 8,
+    type: Number
+  })
+  @Expose()
+  workedHours(): number {
     const tasks = this.tasks || [];
     let totalHours = 0;
     for (const task of tasks) {  
@@ -105,6 +123,13 @@ export class TimeLogDto {
     }
     return totalHours;
   }
+
+  @ApiProperty({
+    type: [TaskDto],
+    description: 'Array of tasks worked on that day'
+  })
+  tasks: TaskDto[] = [];
+
 }
 
 export class TimesheetDto {
