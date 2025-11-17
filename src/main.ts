@@ -17,6 +17,8 @@ async function bootstrap() {
   );
 
   app.useLogger(app.get(Logger));
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+  app.enableCors();
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('API')
@@ -25,8 +27,6 @@ async function bootstrap() {
     .build();
   const swaggerDoc = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('swagger', app, swaggerDoc);
-
-  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   await app.listen(process.env.PORT ?? 8000);
 }
