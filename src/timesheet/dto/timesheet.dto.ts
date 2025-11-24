@@ -67,10 +67,8 @@ export class TaskDto {
 }
 
 export class TimeLogDto {
-  constructor(date: string, timeIn: string, timeOut: string) {
+  constructor(date: string) {
     this.date = date;
-    this.timeIn = timeIn;
-    this.timeOut = timeOut;
   }
 
   @ApiProperty({
@@ -98,6 +96,9 @@ export class TimeLogDto {
   })
   @Expose()
   elapsedTime(): string {
+    if (!this.timeIn || !this.timeOut) {
+      return '0:00';
+    }
     const inDate = new Date(`1970-01-01T${this.timeIn}:00Z`);
     const outDate = new Date(`1970-01-01T${this.timeOut}:00Z`);
     if (outDate < inDate) {
@@ -122,6 +123,18 @@ export class TimeLogDto {
       totalHours += task.hours;
     }
     return totalHours;
+  }
+
+  @ApiProperty({
+    description: 'Returns true if a weekend, false otherwise',
+    example: false,
+    type: Boolean
+  })
+  @Expose()
+  weekend(): boolean {
+    const date = new Date(this.date);
+    const dayOfWeek = date.getDay();
+    return dayOfWeek === 0 || dayOfWeek === 6;
   }
 
   @ApiProperty({
