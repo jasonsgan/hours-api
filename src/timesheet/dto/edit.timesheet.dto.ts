@@ -21,6 +21,18 @@ export class EditTimeLogDto {
     example: '18:00'
   })
   timeOut: string;
+
+  @ApiProperty({
+    description: 'General remarks',
+    example: 'Official Business'
+  })
+  remarks: string;  
+
+  @ApiProperty({
+    description: 'Reason for overriding time entries',
+    example: 'WFH'
+  })
+  overrideReason: string;  
 }
 
 export class EditTimesheetDto {

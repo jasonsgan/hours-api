@@ -78,6 +78,12 @@ export class TimeLogDto {
   date: string;
 
   @ApiProperty({
+    description: 'Shift type (e.g. Reg)',
+    example: 'Reg'
+  })
+  shift: string;
+
+  @ApiProperty({
     description: 'First time-in of the day in 24-hour HH:mm format',
     example: '09:00'
   })
@@ -88,6 +94,18 @@ export class TimeLogDto {
     example: '18:00'
   })
   timeOut: string;
+
+  @ApiProperty({
+    description: 'General remarks',
+    example: 'Official Business'
+  })
+  remarks: string;  
+
+  @ApiProperty({
+    description: 'Reason for overriding time entries',
+    example: 'WFH'
+  })
+  overrideReason: string;  
 
   @ApiProperty({
     description: 'Elapsed time between time-in and time-out',

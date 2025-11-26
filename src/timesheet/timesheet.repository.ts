@@ -22,6 +22,7 @@ export class TimesheetRepository {
       if (!timeLog) {
         timeLog = new TimeLogDto(isoDate);
         if (!timeLog.weekend()) {
+          timeLog.shift = 'Reg';
           timeLog.timeIn = '09:00';
           timeLog.timeOut = '18:30';
           timeLog.tasks.push(new TaskDto('Benoite', 'Corporate Event', 3, 'Lunch at Rals'));
@@ -45,6 +46,8 @@ export class TimesheetRepository {
       }
       timeLog.timeIn = editTimeLog.timeIn;
       timeLog.timeOut = editTimeLog.timeOut;
+      timeLog.remarks = editTimeLog.remarks;
+      timeLog.overrideReason = editTimeLog.overrideReason;
     }
   }
 
