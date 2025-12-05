@@ -34,13 +34,6 @@ export class MonthParamsDto {
 }
 
 export class TaskDto {
-  constructor(projectName: string, taskName: string, hours: number, taskDescription?: string) {
-    this.projectName = projectName;
-    this.taskName = taskName;
-    this.hours = hours;
-    this.taskDescription = taskDescription;
-  }
-  
   @ApiProperty({
     description: 'Project name',
     example: 'Benoite'
@@ -63,7 +56,7 @@ export class TaskDto {
     description: 'Additional information about the task',
     example: 'Attended Softcon 2025 conference'
   })  
-  taskDescription?: string;
+  taskDescription: string | null;
 }
 
 export class TimeLogDto {
@@ -87,25 +80,25 @@ export class TimeLogDto {
     description: 'First time-in of the day in 24-hour HH:mm format',
     example: '09:00'
   })
-  timeIn: string;
+  timeIn: string | null;
 
   @ApiProperty({
     description: 'Last time-out of the day in 24-hour HH:mm format',
     example: '18:00'
   })
-  timeOut: string;
+  timeOut: string | null;
 
   @ApiProperty({
     description: 'General remarks',
     example: 'Official Business'
   })
-  remarks: string;  
+  remarks: string | null;  
 
   @ApiProperty({
     description: 'Reason for overriding time entries',
     example: 'WFH'
   })
-  overrideReason: string;  
+  overrideReason: string | null;  
 
   @ApiProperty({
     description: 'Elapsed time between time-in and time-out',
