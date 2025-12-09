@@ -100,25 +100,24 @@ export class TimesheetRepository {
     let tasks: Promise<any>[] = [];
     while (currentDate < toDate) {
       const weekend = isWeekend(currentDate);
-      if (weekend) {
+      if (!weekend) {
         tasks.push(prisma.task.create({ 
           data: {
             userId,
             date: new Date(currentDate),
             projectName: 'Benoite',
             taskName: 'Corporate Event',
-            taskDescription: 'Lunch at Rals',
-            hours: 3
-          } 
+            hours: 3,
+             taskDescription: 'Lunch at Rals'
+         } 
         }));
         tasks.push(prisma.task.create({ 
           data: {
             userId,
             date: new Date(currentDate),
-            projectName: 'Benoite',
-            taskName: 'Corporate Event',
-            taskDescription: 'Lunch at Rals',
-            hours: 3
+            projectName: 'MC4 BD',
+            taskName: 'Proposal Preparation',
+            hours: 5
           } 
         }));
       }
