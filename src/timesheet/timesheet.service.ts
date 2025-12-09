@@ -16,10 +16,10 @@ export class TimesheetService {
   constructor(private readonly timesheetRepository: TimesheetRepository) {
   }
 
-  async findTimesheet(username: string, year: number, month: number): Promise<TimesheetDto> {
-    this.logger.log(`Fetching time entries for user: ${username}, year: ${year}, month: ${month}`);
+  async findTimesheet(userId: string, year: number, month: number): Promise<TimesheetDto> {
+    this.logger.log(`Fetching time entries for user: ${userId}, year: ${year}, month: ${month}`);
     
-    const timeLogs = await this.timesheetRepository.findTimeLogs(username, year, month);
+    const timeLogs = await this.timesheetRepository.findTimeLogs(userId, year, month);
 
     const timesheet = new TimesheetDto();
     for (const timeLog of timeLogs) {
@@ -42,13 +42,13 @@ export class TimesheetService {
     return timesheet;
   }
 
-  async editTimesheet(username: string, editTimesheetDto: EditTimesheetDto): Promise<void> {
-    this.logger.log(`Editing timesheet for user: ${username}`);
+  async editTimesheet(userId: string, editTimesheetDto: EditTimesheetDto): Promise<void> {
+    this.logger.log(`Editing timesheet for user: ${userId}`);
 
     const timeLogs = editTimesheetDto.timeLogs.map(timeLogDto => {
       return {
         ...timeLogDto,
-        userId: '1',
+        userId,
         date: new Date(timeLogDto.date)
       };
     });

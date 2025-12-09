@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { TimesheetDto, TimeLogDto, TaskDto } from './dto/timesheet.dto';
 import { EditTimesheetDto } from './dto/edit.timesheet.dto';
 import { time } from 'console';
@@ -8,21 +8,20 @@ import { TimeLogModel } from '../generated/prisma/models/TimeLog'
 import { Prisma } from '../generated/prisma/client';
 import { isWeekend } from 'src/utils/date.utils';
 
-const userId = '1';
-
 export type TimeLogWithTasks = Prisma.TimeLogGetPayload<{ include: { tasks: true } }>;
 export type TimeLog = Prisma.TimeLogGetPayload<{}>;
 
 @Injectable()
 export class TimesheetRepository {
+  private readonly logger = new Logger(TimesheetRepository.name);
 
-  async findTimeLogs(username: string, year: number, month: number): Promise<TimeLogWithTasks[]> {
+  async findTimeLogs(userId: string, year: number, month: number): Promise<TimeLogWithTasks[]> {
     const fromDate = new Date(Date.UTC(year, month - 1, 1));
     const toDate =  new Date(Date.UTC(year, month, 1));
 
     const findOptions = {
       where: {
-        userId: '1',
+        userId,
         date: {
           gte: fromDate,
           lt: toDate
@@ -36,76 +35,121 @@ export class TimesheetRepository {
 
     let timeLogs = await prisma.timeLog.findMany(findOptions);
     if (!timeLogs || timeLogs.length === 0) {
-      await this.createTimesheet(fromDate, toDate);
+      this.logger.log(`No time logs found for period ${fromDate}-${toDate}. Creating time logs...`);
+      await this.createTimesheet(userId, fromDate, toDate);
       timeLogs = await prisma.timeLog.findMany(findOptions);
+    } else {
+      this.logger.log(`Time logs found for period ${fromDate}-${toDate}.`);
     }
 
     return timeLogs;
   }
-
-  async createTimesheet(fromDate: Date, toDate: Date) {
+/*
+  async createTimesheet(userId, fromDate: Date, toDate: Date) {
+    this.logger.log(`Creating timesheet: userId=${userId} fromDate=${fromDate} toDate=${toDate}`);
+    
     let currentDate = new Date(fromDate);
-
+    let timeLogs: any[] = [];
     while (currentDate < toDate) {
       const weekend = isWeekend(currentDate);
-
-      await prisma.timeLog.create({
-        data: {
+      timeLogs.push({
           userId,
-          date: currentDate,
+          date: new Date(currentDate),
           timeIn: !weekend ? '09:00' : undefined,
-          timeOut: !weekend ? '18:30' : undefined
-        }
-      });
-
-      if (!weekend) {
-        await prisma.task.create({
-          data: {
-            userId,
-            date: currentDate,
-            projectName: 'Benoite',
-            taskName: 'Corporate Event',
-            hours: 3,
-            taskDescription: 'Lunch at Rals'
-          }
-        });
-
-        await prisma.task.create({
-          data: {
-            userId,
-            date: currentDate,
-            projectName: 'MC4 BD',
-            taskName: 'Proposal Preparation',
-            hours: 5
-          }
-        });
-      }
-
+          timeOut: !weekend ? '18:30' : undefined        
+      })
       currentDate.setUTCDate(currentDate.getUTCDate() + 1);
     }
+    await prisma.timeLog.createMany({ data: timeLogs });
+
+    currentDate = new Date(fromDate);
+    let tasks: any[] = [];
+    while (currentDate < toDate) {
+      const weekend = isWeekend(currentDate);
+      tasks.push({
+        userId,
+        date: new Date(currentDate),
+        timeIn: !weekend ? '09:00' : undefined,
+        timeOut: !weekend ? '18:30' : undefined
+      });
+      currentDate.setUTCDate(currentDate.getUTCDate() + 1);
+    }
+    await prisma.task.createMany({ data: tasks });
+  }
+*/
+  async createTimesheet(userId, fromDate: Date, toDate: Date) {
+    this.logger.log(`Creating timesheet: userId=${userId} fromDate=${fromDate} toDate=${toDate}`);
+    
+    let currentDate = new Date(fromDate);
+    let timeLogs: Promise<any>[] = [];
+    while (currentDate < toDate) {
+      const weekend = isWeekend(currentDate);
+      timeLogs.push(prisma.timeLog.create({ 
+        data: {
+          userId,
+          date: new Date(currentDate),
+          timeIn: !weekend ? '09:00' : undefined,
+          timeOut: !weekend ? '18:30' : undefined        
+        }
+      }));
+      currentDate.setUTCDate(currentDate.getUTCDate() + 1);
+    }
+    await Promise.all(timeLogs);
+
+    currentDate = new Date(fromDate);
+    let tasks: Promise<any>[] = [];
+    while (currentDate < toDate) {
+      const weekend = isWeekend(currentDate);
+      if (weekend) {
+        tasks.push(prisma.task.create({ 
+          data: {
+            userId,
+            date: new Date(currentDate),
+            projectName: 'Benoite',
+            taskName: 'Corporate Event',
+            taskDescription: 'Lunch at Rals',
+            hours: 3
+          } 
+        }));
+        tasks.push(prisma.task.create({ 
+          data: {
+            userId,
+            date: new Date(currentDate),
+            projectName: 'Benoite',
+            taskName: 'Corporate Event',
+            taskDescription: 'Lunch at Rals',
+            hours: 3
+          } 
+        }));
+      }
+      currentDate.setUTCDate(currentDate.getUTCDate() + 1);
+    }
+    await Promise.all(tasks);
   }
 
-
   async editTimesheet(timeLogs: TimeLog[]): Promise<void> {
+    const updates: Promise<any>[] = [];
+
     for (const timeLog of timeLogs) {
-
-      console.log('Updating timeLog:', timeLog);
-
-      await prisma.timeLog.update({
-        where: {  
-          userId_date: {
-            userId,
-            date: timeLog.date
+      const update =
+        prisma.timeLog.update({
+          where: {  
+            userId_date: {
+              userId: timeLog.userId,
+              date: timeLog.date
+            }
+          },
+          data: {
+            timeIn: timeLog.timeIn,
+            timeOut: timeLog.timeOut,
+            remarks: timeLog.remarks,
+            overrideReason: timeLog.overrideReason
           }
-        },
-        data: {
-          timeIn: timeLog.timeIn,
-          timeOut: timeLog.timeOut,
-          remarks: timeLog.remarks,
-          overrideReason: timeLog.overrideReason
-        }
-      });
+        });
+      updates.push(update);
     }
+
+    await Promise.all(updates);
   }
 
 }
